@@ -16,6 +16,10 @@ async def ping(ctx):
 async def invite(ctx):
 	await ctx.send("https://bit.ly/2PDuIkc")
 
+@bot.command()
+async def github(ctx):
+	await ctx.send("support the bot by visiting its github page: https://github.com/imakespaghetticode/robotic-gangsta")
+
 
 
 bot.run(token)
