@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import json
+import glob
 
 with open("bot.json") as file:
 	js = json.load(file)
@@ -8,16 +9,29 @@ with open("bot.json") as file:
 
 bot = commands.Bot(command_prefix="rg!")
 
+# Cogs
+
+def getCogs():
+    for i in list(map(lambda p: p.replace('\\','.').replace('/','.')[:-3], glob.glob("cogs/*.py"))):
+        yield i
+
+def loadCogs():
+    for i in getCogs():
+        bot.load_extension(i)
+
+
+def unloadCogs():
+    for i in getCogs():
+        bot.unload_extension(i)
+
+# Event
+
 @bot.event
 async def on_ready():
+	gamestat = discord.Activity(name="rg!help",type=discord.ActivityType.playing)
+	await bot.change_presence(activity=gamestat)
+	loadCogs()
 	print("Bot ready")
-
-
-# Ping command
-
-@bot.command()
-async def ping(ctx):
-    await ctx.send(str(int(bot.latency * 1000))+ "ms")
 
 # Invite command
 
@@ -37,6 +51,13 @@ async def website(ctx):
 async def github(ctx):
 	await ctx.send("support the bot by visiting its github page: https://github.com/imakespaghetticode/robotic-gangsta")
 
+# Reload cogs
 
+@bot.command(hidden=True)
+@commands.is_owner()
+async def reload(ctx):
+    unloadCogs()
+    loadCogs()
+    await ctx.send("Done")
 
 bot.run(token)
